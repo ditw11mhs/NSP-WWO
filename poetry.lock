@@ -485,27 +485,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "modin"
-version = "0.11.0"
-description = "Modin: Make your pandas code run faster by changing one line of code."
-category = "main"
-optional = false
-python-versions = ">=3.7.1"
-
-[package.dependencies]
-numpy = ">=1.16.5"
-packaging = "*"
-pandas = "1.3.3"
-
-[package.extras]
-all = ["dask (>=2.22.0)", "distributed (>=2.22.0)", "ray[default] (>=1.4.0)", "pyarrow (>=1.0)", "rpyc (==4.1.5)", "cloudpickle", "boto3 (==1.4.8)", "modin-spreadsheet (>=0.1.0)", "dfsql (>=0.2.6)", "mindsdb-sql (<=0.0.12)"]
-dask = ["dask (>=2.22.0)", "distributed (>=2.22.0)"]
-ray = ["ray[default] (>=1.4.0)", "pyarrow (>=1.0)"]
-remote = ["rpyc (==4.1.5)", "cloudpickle", "boto3 (==1.4.8)"]
-spreadsheet = ["modin-spreadsheet (>=0.1.0)"]
-sql = ["dfsql (>=0.2.6)", "mindsdb-sql (<=0.0.12)"]
-
-[[package]]
 name = "nbclient"
 version = "0.5.4"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
@@ -1141,7 +1120,7 @@ notebook = ">=4.4.1"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "972f0236725f0de9511f422370e6314dc2d9f28d8f8d70ed3a1490b8b00f5581"
+content-hash = "5d82984537067975703d96e74573b3acf9a4b701ea0a5d8f8c4f379dfca22d54"
 
 [metadata.files]
 altair = [
@@ -1508,14 +1487,6 @@ matplotlib-inline = [
 mistune = [
     {file = "mistune-0.8.4-py2.py3-none-any.whl", hash = "sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4"},
     {file = "mistune-0.8.4.tar.gz", hash = "sha256:59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e"},
-]
-modin = [
-    {file = "modin-0.11.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:b54bb4d0cbe833b8a97f16b877bee265aed25ad157dbc02cf40af187272b7bda"},
-    {file = "modin-0.11.0-py3-none-manylinux1_i686.whl", hash = "sha256:c7d2f0f960079a79ced2218ddae0498611780f80f7c08bd3219b68b4166fe506"},
-    {file = "modin-0.11.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:e02759cdbb70d400ebbadbacbe40a46d3f01a5b67df9160181668481c117ab4d"},
-    {file = "modin-0.11.0-py3-none-win32.whl", hash = "sha256:38071854bcccb7ee54f960ec3b8feb1a11c759b0a285c3122c5f5b3e188d049d"},
-    {file = "modin-0.11.0-py3-none-win_amd64.whl", hash = "sha256:41a6d30c000df90978d9d033c7361d629279cc032d3bfe7b0616e8a136e4d360"},
-    {file = "modin-0.11.0.tar.gz", hash = "sha256:4d25a8cea11fd866223254fb606bc13c9dfe201c52bf2d659eec29f74290e23b"},
 ]
 nbclient = [
     {file = "nbclient-0.5.4-py3-none-any.whl", hash = "sha256:95a300c6fbe73721736cf13972a46d8d666f78794b832866ed7197a504269e11"},
