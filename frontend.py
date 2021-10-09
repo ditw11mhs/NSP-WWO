@@ -29,12 +29,60 @@ class Main:
         with st.sidebar.form("Input"):
             st.title("Input Parameter")
             st.number_input("Iteration", key="iter", value=1000)
-            st.number_input("H Max (Max Wave Height)", key="hmax", value=6.0,step=0.000001,max_value=100000.0,min_value=0.0)
-            st.number_input("Lambda (Wavelength)", key="lambd", value=0.5,step=0.000001,max_value=100000.0,min_value=0.0)
-            st.number_input("Alpha", key="alpha", value=1.001,step=0.000001,max_value=100000.0,min_value=0.0)
-            st.number_input("Beta Max", key="beta_max", value=0.01,step=0.000001,max_value=100000.0,min_value=0.0)
-            st.number_input("Beta Min", key="beta_min", value=0.001,step=0.000001,max_value=100000.0,min_value=0.0)
-            st.number_input("Epsilon", key="epsilon", value=1e-31)
+            st.number_input(
+                "H Max (Max Wave Height)",
+                key="hmax",
+                value=6.0,
+                step=0.000001,
+                max_value=100000.0,
+                min_value=0.0,
+                format="%f",
+            )
+            st.number_input(
+                "Lambda (Wavelength)",
+                key="lambd",
+                value=0.5,
+                step=0.000001,
+                max_value=100000.0,
+                min_value=0.0,
+                format="%f",
+            )
+            st.number_input(
+                "Alpha",
+                key="alpha",
+                value=1.001,
+                step=0.000001,
+                max_value=100000.0,
+                min_value=0.0,
+                format="%f",
+            )
+            st.number_input(
+                "Beta Max",
+                key="beta_max",
+                value=0.01,
+                step=0.000001,
+                max_value=100000.0,
+                min_value=0.0,
+                format="%f",
+            )
+            st.number_input(
+                "Beta Min",
+                key="beta_min",
+                value=0.001,
+                step=0.000001,
+                max_value=100000.0,
+                min_value=0.0,
+                format="%f",
+            )
+            st.number_input(
+                "Epsilon",
+                key="epsilon",
+                value=1e-31,
+                format="%f",
+                step=1e-31,
+                min_value=0.0,
+                max_value=1.0,
+            )
             st.number_input("K Max", key="k_max", value=12)
             st.number_input("Upper Bound", key="upper_bound", value=1)
             st.number_input("Lower Bound", key="lower_bound", value=0)
