@@ -243,9 +243,11 @@ class NSP_Class:
         self.nurse_array_col = np.where(self.nurse_array_col.astype(str)=="1","Sore",self.nurse_array_col.astype(str))
         self.nurse_array_col = np.where(self.nurse_array_col.astype(str)=="2","Malam",self.nurse_array_col.astype(str))
         self.nurse_array_col = np.where(self.nurse_array_col.astype(str)=="3","Libur",self.nurse_array_col.astype(str))
-        nurse_array = (
-            (nurse_array_col.flatten()[:, None] == np.arange(4)) * 1
-        ).flatten()
+        # nurse_array = (
+        #     (nurse_array_col.flatten()[:, None] == np.arange(4)) * 1
+        # ).flatten()
+        
+        nurse_array = nurse_array_col.flatten()
         return nurse_array
 
     def cost(self, nurse_array) -> float:
@@ -254,8 +256,10 @@ class NSP_Class:
         Returns:
             cost: Nilai cost dari model NSP
         """
-        nurse_array = nurse_array.reshape(self.unit_total_nurse, 4 * self.day)
-        nurse_array = np.round(nurse_array)
+        # nurse_array = nurse_array.reshape(self.unit_total_nurse, 4 * self.day)
+        # nurse_array = np.round(nurse_array)
+        
+        nurse_array = nurse_array.reshape(-1,self.day)
 
         cost_minimum_shift = self.hard_constraint_cost_minimum_shift(nurse_array)
         cost_one_per_day = self.hard_constraint_cost_one_per_day(nurse_array)
@@ -282,16 +286,34 @@ class NSP_Class:
         Returns:
             cost_minimum_shift: Total cost "minimum shift"
         """
-        # Menghitung total perawat per shift per hari (sum ke bawah)
-        array_shift_sum = np.sum(nurse_array, axis=0)
-        # Membuat array total perawat per shift per hari menjadi kolom (Hari x 4)
-        array_rearange = np.reshape(array_shift_sum, (-1, 4))
-        # Menggunakan 3 kolom awal array sebelumnya (karena kolom 4 libur sehingga tidak dihitung)
-        # dan memastikan apakah nilainya sesuai dengan shift minimum
-        array_difference = array_rearange - self.unit_minimum_shift
-        array_check = -np.where(array_difference < 0, array_difference, 0)
-        # Menghitung total cost
-        cost_minimum_shift = np.sum(array_check)
+        # # Menghitung total perawat per shift per hari (sum ke bawah)
+        # array_shift_sum = np.sum(nurse_array, axis=0)
+        # # Membuat array total perawat per shift per hari menjadi kolom (Hari x 4)
+        # array_rearange = np.reshape(array_shift_sum, (-1, 4))
+        # # Menggunakan 3 kolom awal array sebelumnya (karena kolom 4 libur sehingga tidak dihitung)
+        # # dan memastikan apakah nilainya sesuai dengan shift minimum
+        # array_difference = array_rearange - self.unit_minimum_shift
+        # array_check = -np.where(array_difference < 0, array_difference, 0)
+        # # Menghitung total cost
+        # cost_minimum_shift = np.sum(array_check)
+        
+        nurse_array_HC134 = np.count_nonzero(nurse_array == 0, axis=0)
+        nurse_array_HC134_Noon = np.count_nonzero(nurse_array == 1, axis=0)
+        nurse_array_HC134_Night = np.count_nonzero(nurse_array == 2, axis=0)
+        nurse_array_HC134_Holiday = np.count_nonzero(nurse_array == 3, axis=0)
+        nurse_total_shift = np.vstack(
+            (
+                nurse_array_HC134,
+                nurse_array_HC134_Noon,
+                nurse_array_HC134_Night,
+                nurse_array_HC134_Holiday,
+            )
+        ).T
+        array_difference = nurse_total_shift - self.unit_minimum_shift
+        check_if_not_minimal = np.sum(
+            np.where(array_difference[:, :3] < 0, array_difference[:, :3], 0)
+        )
+        cost_minimum_shift = -check_if_not_minimal
         return cost_minimum_shift
 
     def hard_constraint_cost_one_per_day(self, nurse_array) -> int:
@@ -300,14 +322,17 @@ class NSP_Class:
         Returns:
             cost_one_per_day: Total cost "satu shift per hari"
         """
-        # Membuat array menjadi kolom (Total Perawat*Hari x 4)
-        array_compute = np.reshape(nurse_array, (-1, 4))
-        # Menghitung total (ke samping) untuk mendapatkan jumlah shift per hari
-        array_compute_sum = np.sum(array_compute, axis=1)
-        # Memastikan apakah jumlah shift per hari lebih dari 1
-        array_check = (array_compute_sum > 1) * 1
-        # Menghitung total cost
-        cost_one_per_day = np.sum(array_check)
+        # # Membuat array menjadi kolom (Total Perawat*Hari x 4)
+        # array_compute = np.reshape(nurse_array, (-1, 4))
+        # # Menghitung total (ke samping) untuk mendapatkan jumlah shift per hari
+        # array_compute_sum = np.sum(array_compute, axis=1)
+        # # Memastikan apakah jumlah shift per hari lebih dari 1
+        # array_check = (array_compute_sum > 1) * 1
+        # # Menghitung total cost
+        # cost_one_per_day = np.sum(array_check)
+        
+        # Karena sudah pasti satu shift per harinya 
+        cost_one_per_day = 0 
         return cost_one_per_day
 
     def hard_constraint_cost_night_day(self, nurse_array):
@@ -318,8 +343,15 @@ class NSP_Class:
         Returns:
             cost_night_day : cost perawat dengan shift malam diikuti dengan shift pagi
         """
-        array_night = nurse_array[:, 2:-2:4] * nurse_array[:, 4::4]
-        cost_night_day = np.sum(array_night)
+        # array_night = nurse_array[:, 2:-2:4] * nurse_array[:, 4::4]
+        # cost_night_day = np.sum(array_night)
+        
+        where_night = np.argwhere(nurse_array==2)
+        where_night_plus = where_night+[0,1]
+        where_more_than_max = np.argwhere(where_night_plus[:,1]>self.day-1)
+        where_night_plus = np.delete(where_night_plus,(where_more_than_max*2,where_more_than_max*2+1)).reshape(-1,2,)
+        nurse_array_plus = nurse_array[where_night_plus[:,0],where_night_plus[:,1]]
+        cost_night_day = np.sum(np.where(nurse_array_plus==0,1,0))
         return cost_night_day
 
     def soft_constraint_cost_noon_shift(self, nurse_array) -> int:
@@ -334,8 +366,15 @@ class NSP_Class:
             cost_noon_shift: cost soft constraint shift sore
         """
         # Membuat array sore (hari 1 -> Total Hari-1)
-        array_noon = nurse_array[:, 1:-3:4] * nurse_array[:, 4::4]
-        cost_noon_shift = np.sum(array_noon)
+        # array_noon = nurse_array[:, 1:-3:4] * nurse_array[:, 4::4]
+        # cost_noon_shift = np.sum(array_noon)
+        
+        where_noon = np.argwhere(nurse_array==1)
+        where_noon_plus = where_noon+[0,1]
+        where_more_than_max = np.argwhere(where_noon_plus[:,1]>self.day-1)
+        where_noon_plus = np.delete(where_noon_plus,(where_more_than_max*2,where_more_than_max*2+1)).reshape(-1,2,)
+        nurse_array_plus = nurse_array[where_noon_plus[:,0],where_noon_plus[:,1]]
+        cost_noon_shift = np.sum(np.where(nurse_array_plus==0,1,0))
         return cost_noon_shift
 
     def soft_constraint_cost_morning_shift(self, nurse_array) -> int:
@@ -349,8 +388,15 @@ class NSP_Class:
         Returns:
             cost_morning_shift: cost soft constraint shift pagi
         """
-        array_morning = nurse_array[:, :-4:4] * nurse_array[:, 6::4]
-        cost_morning_shift = np.sum(array_morning)
+        # array_morning = nurse_array[:, :-4:4] * nurse_array[:, 6::4]
+        # cost_morning_shift = np.sum(array_morning)
+        
+        where_morning = np.argwhere(nurse_array==0)
+        where_morning_plus = where_morning+[0,1]
+        where_more_than_max = np.argwhere(where_morning_plus[:,1]>self.day-1)
+        where_morning_plus = np.delete(where_morning_plus,(where_more_than_max*2,where_more_than_max*2+1)).reshape(-1,2,)
+        nurse_array_plus = nurse_array[where_morning_plus[:,0],where_morning_plus[:,1]]
+        cost_morning_shift = np.sum(np.where(nurse_array_plus==2,1,0))
         return cost_morning_shift
 
     def soft_constraint_cost_night_holiday_noon(self, nurse_array) -> int:
@@ -360,10 +406,20 @@ class NSP_Class:
         Returns:
             cost_night_holiday_noon: cost soft constraint malam libur sore
         """
-        array_night_holiday_noon = (
-            nurse_array[:, 2:-8:4] * nurse_array[:, 7:-4:4] * nurse_array[:, 9::4]
-        )
-        cost_night_holiday_noon = -np.sum(array_night_holiday_noon)
+        # array_night_holiday_noon = (
+        #     nurse_array[:, 2:-8:4] * nurse_array[:, 7:-4:4] * nurse_array[:, 9::4]
+        # )
+        # cost_night_holiday_noon = -np.sum(array_night_holiday_noon)
+        
+        where_night = np.argwhere(nurse_array==2)
+        where_night_plus = where_night+[0,1]
+        where_night_plus_plus = where_night_plus+[0,1]
+        where_more_than_max = np.argwhere(where_night_plus_plus[:,1]>self.day-1)
+        where_night_plus = np.delete(where_night_plus,(where_more_than_max*2,where_more_than_max*2+1)).reshape(-1,2,)
+        where_night_plus_plus = np.delete(where_night_plus_plus,(where_more_than_max*2,where_more_than_max*2+1)).reshape(-1,2,)
+        nurse_array_plus = nurse_array[where_night_plus[:,0],where_night_plus[:,1]]
+        nurse_array_plus_plus = nurse_array[where_night_plus_plus[:,0],where_night_plus_plus[:,1]]
+        cost_night_holiday_noon=-np.sum(np.where(nurse_array_plus==3,1,0)*np.where(nurse_array_plus_plus==1,1,0))
         return cost_night_holiday_noon
 
 
@@ -418,6 +474,7 @@ class WWO:
         wave_population_list = []
         for x in range(self.x_population):
             wave_population_list.append(self.NSP)
+        # print(wave_population_list)
         return wave_population_list
 
     def cost_function(self, wave_population_list: list) -> list:
@@ -514,9 +571,11 @@ class WWO:
             #       """
             # )
             self.best_fit_iteration.append(best_fit)
-        best_pos = best_pos.reshape(-1, 4)
-        where_one_col = np.argwhere(best_pos == 1)[:, 1]
-        best_pos = where_one_col.reshape(self.NSP.unit_total_nurse, self.NSP.day)
+        # best_pos = best_pos.reshape(-1, 4)
+        # where_one_col = np.argwhere(best_pos == 1)[:, 1]
+        # best_pos = where_one_col.reshape(self.NSP.unit_total_nurse, self.NSP.day)
+        best_pos = best_pos.reshape(self.NSP.unit_total_nurse,self.NSP.day)
+        best_pos = best_pos.astype(int)
         best_pos = np.where(best_pos.astype(str)=="0","Pagi",best_pos.astype(str))
         best_pos = np.where(best_pos.astype(str)=="1","Sore",best_pos.astype(str))
         best_pos = np.where(best_pos.astype(str)=="2","Malam",best_pos.astype(str))
