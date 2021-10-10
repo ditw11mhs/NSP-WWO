@@ -2,10 +2,7 @@ import os
 import numpy as np
 from backend import NSP_Class, WWO
 import streamlit as st
-
-# os.environ["MODIN_ENGINE"] = "dask"
-# from distributed import Client
-# client = Client()
+import altair as alt
 import pandas as pd
 
 
@@ -29,7 +26,7 @@ class Main:
         with st.sidebar.form("Input"):
             st.title("Input Parameter")
             st.number_input("Population", key="x_population", value=10)
-            st.number_input("Iteration", key="iter", value=1000)
+            st.number_input("Iteration", key="iter", value=10)
             st.number_input("Hard Constraint Multiplier", key="multiplier", value=0)
             st.number_input(
                 "H Max (Max Wave Height)",
@@ -265,7 +262,21 @@ class Main:
                 with st.spinner("Processing IGD Schedule..."):
                     igd_pos, _ = WWO_Class_Dict["IGD"].optimize()
                     igd_plot_text.subheader("IGD WWO Plot")
-                    igd_plot.line_chart(WWO_Class_Dict["IGD"].best_fit_iteration)
+                    data_igd = pd.DataFrame(
+                        {
+                            "Cost Jadwal 2 Unit IGD": WWO_Class_Dict[
+                                "IGD"
+                            ].best_fit_iteration,
+                            "Iteration": np.arange(st.session_state["iter"] + 1),
+                        }
+                    )
+                    chart_igd = (
+                        alt.Chart(data_igd)
+                        .mark_line()
+                        .encode(x="Iteration", y="Cost Jadwal 2 Unit IGD")
+                    )
+                    igd_plot.altair_chart(chart_igd, use_container_width=True)
+
                     igd_cost_text.subheader(
                         f"""Cost {max(WWO_Class_Dict["IGD"].best_fit_iteration)} -> {min(WWO_Class_Dict["IGD"].best_fit_iteration)}"""
                     )
@@ -287,9 +298,20 @@ class Main:
                 with st.spinner("Processing Rawat Inap Schedule..."):
                     r_inap_pos, _ = WWO_Class_Dict["Rawat Inap"].optimize()
                     r_inap_plot_text.subheader("Rawat Inap WWO Plot")
-                    r_inap_plot.line_chart(
-                        WWO_Class_Dict["Rawat Inap"].best_fit_iteration
+                    data_r_inap = pd.DataFrame(
+                        {
+                            "Cost Jadwal 2 Unit Rawat Inap": WWO_Class_Dict[
+                                "Rawat Inap"
+                            ].best_fit_iteration,
+                            "Iteration": np.arange(st.session_state["iter"] + 1),
+                        }
                     )
+                    chart_r_inap = (
+                        alt.Chart(data_r_inap)
+                        .mark_line()
+                        .encode(x="Iteration", y="Cost Jadwal 2 Unit Rawat Inap")
+                    )
+                    r_inap_plot.altair_chart(chart_r_inap, use_container_width=True)
                     r_inap_cost_text.subheader(
                         f"""Cost {max(WWO_Class_Dict["Rawat Inap"].best_fit_iteration)} -> {min(WWO_Class_Dict["Rawat Inap"].best_fit_iteration)}"""
                     )
@@ -309,9 +331,20 @@ class Main:
                 with st.spinner("Processing Anastesi Schedule..."):
                     anastesi_pos, _ = WWO_Class_Dict["Anastesi"].optimize()
                     anastesi_plot_text.subheader("Anastesi WWO Plot")
-                    anastesi_plot.line_chart(
-                        WWO_Class_Dict["Anastesi"].best_fit_iteration
+                    data_anastesi = pd.DataFrame(
+                        {
+                            "Cost Jadwal 2 Unit Anastesi": WWO_Class_Dict[
+                                "Anastesi"
+                            ].best_fit_iteration,
+                            "Iteration": np.arange(st.session_state["iter"] + 1),
+                        }
                     )
+                    chart_anastesi = (
+                        alt.Chart(data_anastesi)
+                        .mark_line()
+                        .encode(x="Iteration", y="Cost Jadwal 2 Unit Anastesi")
+                    )
+                    anastesi_plot.altair_chart(chart_anastesi, use_container_width=True)
                     anastesi_cost_text.subheader(
                         f"""Cost {max(WWO_Class_Dict["Anastesi"].best_fit_iteration)} -> {min(WWO_Class_Dict["Anastesi"].best_fit_iteration)}"""
                     )
@@ -331,7 +364,20 @@ class Main:
                 with st.spinner("Processing ICU Schedule..."):
                     icu_pos, _ = WWO_Class_Dict["ICU"].optimize()
                     icu_plot_text.subheader("ICU WWO Plot")
-                    icu_plot.line_chart(WWO_Class_Dict["ICU"].best_fit_iteration)
+                    data_icu = pd.DataFrame(
+                        {
+                            "Cost Jadwal 2 Unit ICU": WWO_Class_Dict[
+                                "ICU"
+                            ].best_fit_iteration,
+                            "Iteration": np.arange(st.session_state["iter"] + 1),
+                        }
+                    )
+                    chart_icu = (
+                        alt.Chart(data_icu)
+                        .mark_line()
+                        .encode(x="Iteration", y="Cost Jadwal 2 Unit ICU")
+                    )
+                    icu_plot.altair_chart(chart_icu, use_container_width=True)
                     icu_cost_text.subheader(
                         f"""Cost {max(WWO_Class_Dict["ICU"].best_fit_iteration)} -> {min(WWO_Class_Dict["ICU"].best_fit_iteration)}"""
                     )
@@ -351,7 +397,20 @@ class Main:
                 with st.spinner("Processing OK Schedule..."):
                     ok_pos, _ = WWO_Class_Dict["OK"].optimize()
                     ok_plot_text.subheader("OK WWO Plot")
-                    ok_plot.line_chart(WWO_Class_Dict["OK"].best_fit_iteration)
+                    data_ok = pd.DataFrame(
+                        {
+                            "Cost Jadwal 2 Unit OK": WWO_Class_Dict[
+                                "OK"
+                            ].best_fit_iteration,
+                            "Iteration": np.arange(st.session_state["iter"] + 1),
+                        }
+                    )
+                    chart_ok = (
+                        alt.Chart(data_ok)
+                        .mark_line()
+                        .encode(x="Iteration", y="Cost Jadwal 2 Unit OK")
+                    )
+                    ok_plot.altair_chart(chart_ok, use_container_width=True)
                     ok_cost_text.subheader(
                         f"""Cost {max(WWO_Class_Dict["OK"].best_fit_iteration)} -> {min(WWO_Class_Dict["OK"].best_fit_iteration)}"""
                     )

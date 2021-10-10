@@ -516,8 +516,8 @@ class WWO:
             # new_fit_counter = 0
             # best_fit_counter = 0
             # not_found_counter = 0
-            if best_fit == 0.0:
-                break
+            # if best_fit == 0.0:
+            #     break
             # Iterasi untuk tiap gelombang dalam populasi
             for index, wave in enumerate(wave_population_list):
                 new_pos, new_fit = self.propagation(wave)
@@ -535,7 +535,8 @@ class WWO:
                             new_pos, new_fit, wave_length[index], beta, wave
                         )
                         best_pos, best_fit = new_pos, new_fit
-                        print(best_fit)
+                        
+                        # print(best_fit)
                 else:
                     # not_found_counter += 1
                     wave_height[index] -= 1
